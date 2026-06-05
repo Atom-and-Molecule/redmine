@@ -1,6 +1,28 @@
 #!/bin/bash
 set -e
 
+# Wait for database to be ready
+echo "Waiting for database to be ready..."
+bundle exec rails runner "
+max_attempts = 30
+attempts = 0
+begin
+  ActiveRecord::Base.establish_connection
+  ActiveRecord::Base.connection.active?
+  puts 'Database is ready!'
+rescue => e
+  attempts += 1
+  if attempts < max_attempts
+    puts \"Database not ready yet (attempt #{attempts}/#{max_attempts}): #{e.message}. Retrying in 2s...\"
+    sleep 2
+    retry
+  else
+    puts 'Failed to connect to database.'
+    exit 1
+  end
+end
+"
+
 # Run database migrations
 echo "Running database migrations..."
 bundle exec rails db:migrate RAILS_ENV=production
