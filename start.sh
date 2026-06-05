@@ -1,9 +1,16 @@
 #!/bin/bash
 set -e
 
+# Verify DATABASE_URL is set
+if [ -z "$DATABASE_URL" ]; then
+  echo "ERROR: DATABASE_URL environment variable is not set!"
+  echo "Please ensure you have added a PostgreSQL database service in Railway and linked its environment variables to this service."
+  exit 1
+fi
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-bundle exec rails runner "
+bundle exec rails runner -e production "
 max_attempts = 30
 attempts = 0
 begin
