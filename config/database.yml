@@ -1,0 +1,12 @@
+production:
+  adapter: postgresql
+  encoding: unicode
+  url: <%= ENV['DATABASE_URL'] %>
+
+development:
+  adapter: sqlite3
+  database: db/redmine_development.sqlite3
+
+test:
+  adapter: sqlite3
+  database: db/redmine_test.sqlite3
