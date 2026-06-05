@@ -94,7 +94,10 @@ if File.exist?(database_file)
     warn("No adapter found in config/database.yml, please configure it first")
   end
 else
-  warn("Please configure your config/database.yml first")
+  # Fallback for build environments (e.g., Nixpacks / Railway) where config/database.yml
+  # is not yet copied during the dependency caching/installation step.
+  gem 'pg', '~> 1.6.2'
+  gem 'sqlite3', '~> 2.9.4'
 end
 
 group :development, :test do
