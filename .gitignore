@@ -4,7 +4,7 @@
 /.loadpath
 /.powrc
 /.rvmrc
-/.ruby-version
+!/.ruby-version
 /.byebug_history
 /config/additional_environment.rb
 /config/configuration.yml
