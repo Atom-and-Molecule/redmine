@@ -8,6 +8,23 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
+# Log SMTP setup status for debugging
+echo "Checking SMTP/Email configuration..."
+DETECTED_SMTP_HOST=""
+if [ -n "$SMTP_ADDRESS" ]; then
+  DETECTED_SMTP_HOST="$SMTP_ADDRESS"
+elif [ -n "$MAILGUN_SMTP_SERVER" ]; then
+  DETECTED_SMTP_HOST="$MAILGUN_SMTP_SERVER"
+elif [ -n "$MAILGUN_SMTP_HOST" ]; then
+  DETECTED_SMTP_HOST="$MAILGUN_SMTP_HOST"
+fi
+
+if [ -n "$DETECTED_SMTP_HOST" ]; then
+  echo "=> SMTP configuration detected: host='$DETECTED_SMTP_HOST'"
+else
+  echo "=> WARNING: No SMTP environment variables detected. Email notifications will be disabled."
+fi
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
 bundle exec rails runner -e production "

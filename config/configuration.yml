@@ -2,15 +2,25 @@
 # For details, see config/configuration.yml.example
 
 production:
-  <% if ENV['SMTP_ADDRESS'] && !ENV['SMTP_ADDRESS'].empty? %>
+  <%
+    smtp_address = ENV['SMTP_ADDRESS'] || ENV['MAILGUN_SMTP_SERVER'] || ENV['MAILGUN_SMTP_HOST']
+    smtp_port = ENV['SMTP_PORT'] || ENV['MAILGUN_SMTP_PORT'] || 587
+    smtp_user = ENV['SMTP_USER_NAME'] || ENV['SMTP_USER'] || ENV['MAILGUN_SMTP_LOGIN'] || ENV['MAILGUN_SMTP_USER']
+    smtp_password = ENV['SMTP_PASSWORD'] || ENV['MAILGUN_SMTP_PASSWORD']
+    smtp_domain = ENV['SMTP_DOMAIN'] || (smtp_user.to_s.split('@').last if smtp_user.to_s.include?('@'))
+    smtp_auth = ENV['SMTP_AUTHENTICATION'] || 'plain'
+    smtp_starttls = ENV['SMTP_ENABLE_STARTTLS_AUTO'].nil? ? true : (ENV['SMTP_ENABLE_STARTTLS_AUTO'] == 'true')
+  %>
+  <% if smtp_address && !smtp_address.empty? %>
   email_delivery:
     delivery_method: :smtp
     smtp_settings:
-      address: <%= ENV['SMTP_ADDRESS'].inspect %>
-      port: <%= ENV['SMTP_PORT'] || 587 %>
-      domain: <%= ENV['SMTP_DOMAIN'].inspect %>
-      authentication: <%= (ENV['SMTP_AUTHENTICATION'] || 'plain').to_sym.inspect %>
-      user_name: <%= ENV['SMTP_USER_NAME'].inspect %>
-      password: <%= ENV['SMTP_PASSWORD'].inspect %>
-      enable_starttls_auto: <%= ENV['SMTP_ENABLE_STARTTLS_AUTO'].nil? ? true : (ENV['SMTP_ENABLE_STARTTLS_AUTO'] == 'true') %>
+      address: <%= smtp_address.inspect %>
+      port: <%= smtp_port.to_i %>
+      domain: <%= smtp_domain.inspect %>
+      authentication: <%= smtp_auth.to_sym.inspect %>
+      user_name: <%= smtp_user.inspect %>
+      password: <%= smtp_password.inspect %>
+      enable_starttls_auto: <%= smtp_starttls %>
   <% end %>
+
