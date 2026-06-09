@@ -23,6 +23,8 @@ if [ -n "$DETECTED_SMTP_HOST" ]; then
   echo "=> SMTP configuration detected: host='$DETECTED_SMTP_HOST'"
 else
   echo "=> WARNING: No SMTP environment variables detected. Email notifications will be disabled."
+  echo "=> Available env variables (names only):"
+  printenv | cut -d= -f1 | sort | sed 's/^/   - /'
 fi
 
 # Wait for database to be ready
