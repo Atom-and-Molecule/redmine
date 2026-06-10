@@ -38,5 +38,22 @@ Rails.application.config.to_prepare do
         Setting.available_settings['protocol']['default'] = 'https'
       end
     end
+
+    # Log SMTP configuration status to Rails logs/stdout during initialization
+    has_email = ActionMailer::Base.perform_deliveries
+    if has_email
+      msg = "=> [SMTP Debug] Email delivery configured! Host: #{ActionMailer::Base.smtp_settings[:address]}"
+      puts msg
+      Rails.logger.info msg
+    else
+      msg = "=> [SMTP Debug] WARNING: Email delivery is NOT configured!"
+      puts msg
+      Rails.logger.warn msg
+      # Safely print names of available environment variables to help the user identify what is set
+      env_keys = ENV.keys.select { |k| k.include?('SMTP') || k.include?('MAIL') || k.include?('SENDGRID') }
+      msg_env = "=> [SMTP Debug] Available email env vars: #{env_keys.join(', ')}"
+      puts msg_env
+      Rails.logger.warn msg_env
+    end
   end
 end
