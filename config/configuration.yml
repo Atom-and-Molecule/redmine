@@ -1,69 +1,14 @@
 # Redmine configuration file
 # For details, see config/configuration.yml.example
 
-production:
-  <%
-    require 'uri'
-    require 'cgi'
-
-    is_present = ->(val) { val && !val.to_s.strip.empty? }
-
-    # 1. Base explicit variables
-    smtp_address = ENV['SMTP_ADDRESS'] || ENV['SMTP_HOST'] || ENV['SMTP_SERVER'] ||
-                   ENV['MAILGUN_SMTP_SERVER'] || ENV['MAILGUN_SMTP_HOST'] ||
-                   ENV['SENDGRID_SMTP_SERVER'] || ENV['POSTMARK_SMTP_SERVER']
-
-    smtp_port = ENV['SMTP_PORT'] || ENV['MAILGUN_SMTP_PORT'] || 587
-
-    smtp_user = ENV['SMTP_USER_NAME'] || ENV['SMTP_USER'] || ENV['SMTP_USERNAME'] ||
-                ENV['MAILGUN_SMTP_LOGIN'] || ENV['MAILGUN_SMTP_USER'] ||
-                ENV['SENDGRID_USERNAME']
-
-    smtp_password = ENV['SMTP_PASSWORD'] || ENV['SMTP_PASS'] || ENV['MAILGUN_SMTP_PASSWORD'] ||
-                    ENV['SENDGRID_PASSWORD']
-
-    smtp_domain = ENV['SMTP_DOMAIN']
-    smtp_auth = ENV['SMTP_AUTHENTICATION'] || ENV['SMTP_AUTH'] || 'plain'
-    smtp_starttls = ENV['SMTP_ENABLE_STARTTLS_AUTO'].nil? ? true : (ENV['SMTP_ENABLE_STARTTLS_AUTO'] == 'true')
-
-    # 2. Check SMTP_URL / MAIL_URL
-    smtp_url = ENV['SMTP_URL'] || ENV['MAIL_URL']
-    if is_present.call(smtp_url)
-      begin
-        uri = URI.parse(smtp_url.strip)
-        if uri.scheme == 'smtp' || uri.scheme == 'smtps'
-          smtp_address = uri.host unless is_present.call(smtp_address)
-          smtp_port = uri.port unless is_present.call(smtp_port)
-          smtp_user = CGI.unescape(uri.user) if !is_present.call(smtp_user) && uri.user
-          smtp_password = CGI.unescape(uri.password) if !is_present.call(smtp_password) && uri.password
-
-          if uri.query
-            params = CGI.parse(uri.query)
-            smtp_domain = params['domain']&.first if !is_present.call(smtp_domain) && params['domain']&.first
-            smtp_auth = params['authentication']&.first if !is_present.call(smtp_auth) && params['authentication']&.first
-            if params['enable_starttls_auto']&.first == 'false'
-              smtp_starttls = false
-            end
-          end
-        end
-      rescue => e
-        # Ignore parsing errors
-      end
-    end
-
-    # 3. Defaults
-    smtp_domain = (smtp_user.to_s.split('@').last if smtp_user.to_s.include?('@')) unless is_present.call(smtp_domain)
-  %>
-  <% if is_present.call(smtp_address) %>
+default:
   email_delivery:
     delivery_method: :smtp
     smtp_settings:
-      address: <%= smtp_address.inspect %>
-      port: <%= smtp_port.to_i %>
-      domain: <%= smtp_domain.inspect %>
-      authentication: <%= smtp_auth.to_sym.inspect %>
-      user_name: <%= smtp_user.inspect %>
-      password: <%= smtp_password.inspect %>
-      enable_starttls_auto: <%= smtp_starttls %>
-  <% end %>
-
+      address: <%= ENV['SMTP_ADDRESS'] %>
+      port: <%= (ENV['SMTP_PORT'] || 587).to_i %>
+      domain: <%= ENV['SMTP_DOMAIN'] || ENV['SMTP_ADDRESS'] %>
+      authentication: <%= (ENV['SMTP_AUTHENTICATION'] || 'plain').to_sym.inspect %>
+      user_name: <%= ENV['SMTP_USER_NAME'] %>
+      password: <%= ENV['SMTP_PASSWORD'] %>
+      enable_starttls_auto: <%= ENV.fetch('SMTP_ENABLE_STARTTLS_AUTO', 'true') == 'true' %>
