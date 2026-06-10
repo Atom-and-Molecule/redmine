@@ -13,10 +13,28 @@ echo "Checking SMTP/Email configuration..."
 DETECTED_SMTP_HOST=""
 if [ -n "$SMTP_ADDRESS" ]; then
   DETECTED_SMTP_HOST="$SMTP_ADDRESS"
+elif [ -n "$SMTP_HOST" ]; then
+  DETECTED_SMTP_HOST="$SMTP_HOST"
+elif [ -n "$SMTP_SERVER" ]; then
+  DETECTED_SMTP_HOST="$SMTP_SERVER"
 elif [ -n "$MAILGUN_SMTP_SERVER" ]; then
   DETECTED_SMTP_HOST="$MAILGUN_SMTP_SERVER"
 elif [ -n "$MAILGUN_SMTP_HOST" ]; then
   DETECTED_SMTP_HOST="$MAILGUN_SMTP_HOST"
+elif [ -n "$SENDGRID_SMTP_SERVER" ]; then
+  DETECTED_SMTP_HOST="$SENDGRID_SMTP_SERVER"
+elif [ -n "$POSTMARK_SMTP_SERVER" ]; then
+  DETECTED_SMTP_HOST="$POSTMARK_SMTP_SERVER"
+elif [ -n "$SMTP_URL" ]; then
+  DETECTED_SMTP_HOST=$(echo "$SMTP_URL" | grep -oE '@[^/:]+' | cut -c 2-)
+  if [ -z "$DETECTED_SMTP_HOST" ]; then
+    DETECTED_SMTP_HOST="Parsed from SMTP_URL"
+  fi
+elif [ -n "$MAIL_URL" ]; then
+  DETECTED_SMTP_HOST=$(echo "$MAIL_URL" | grep -oE '@[^/:]+' | cut -c 2-)
+  if [ -z "$DETECTED_SMTP_HOST" ]; then
+    DETECTED_SMTP_HOST="Parsed from MAIL_URL"
+  fi
 fi
 
 if [ -n "$DETECTED_SMTP_HOST" ]; then
