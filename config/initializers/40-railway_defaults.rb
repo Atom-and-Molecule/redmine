@@ -40,6 +40,10 @@ Rails.application.config.to_prepare do
     end
 
     # Log SMTP configuration status to Rails logs/stdout during initialization
+    msg_env_name = "=> [SMTP Debug] Current Rails Environment: #{Rails.env}"
+    puts msg_env_name
+    Rails.logger.info msg_env_name
+
     has_email = ActionMailer::Base.perform_deliveries
     if has_email
       msg = "=> [SMTP Debug] Email delivery configured! Host: #{ActionMailer::Base.smtp_settings[:address]}"

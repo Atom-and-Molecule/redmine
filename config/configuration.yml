@@ -1,7 +1,7 @@
 # Redmine configuration file
 # For details, see config/configuration.yml.example
 
-default:
+production:
   <%
     require 'uri'
     require 'cgi'
